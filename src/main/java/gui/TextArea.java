@@ -4,10 +4,16 @@ import gui.json.JoomlaPost;
 import gui.model.JConnPos;
 import gui.model.Model;
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -42,7 +48,9 @@ public class TextArea extends JFrame {
 
 
         JEditorPane area2 = new JEditorPane();
+
         area2.setContentType("text/html;Charset=windows-1251");
+        area2.getDocument().putProperty("IgnoreCharsetDirective", Boolean.TRUE);
         area2.setText("Тут <b> текст для </b>публикации !");
 
 
@@ -63,7 +71,7 @@ public class TextArea extends JFrame {
         downButton.setToolTipText("Кнопка будет активна в случаи успешного завершения теста");
         //нижняя панель
 
-        textArea.setLayout(new GridLayout(1,1));
+        textArea.setLayout(new GridLayout(2,1));
         setJMenuBar(menuBar);
         //категории
         //test teper eto bar
@@ -74,7 +82,7 @@ public class TextArea extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String text = area2.getText();
-                area2.setContentType("text/html;Charset=CP1251");
+                area2.setContentType("text/html;Charset=UTF-8");
                 area2.setText(text);
             }
         });
@@ -85,12 +93,145 @@ public class TextArea extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String text = area2.getText();
-                area2.setContentType("text/plain;Charset=Cp1251");
+                System.out.println(text);
+                area2.setContentType("text/plain;Charset=UTF-8");
                 area2.setText(text);
             }
         });
         menuHtml.add(itemHtml);
         htmlgroup.add(itemHtml);
+        //----
+//LДобавляем поля со стилями
+        JPanel stilMenu = new JPanel();
+        stilMenu.setLayout(new BoxLayout(stilMenu, BoxLayout.X_AXIS));
+        JPanel innerStilePanel  = new JPanel();
+        JButton bold = new JButton("Жирный");
+
+        JButton italik = new JButton("Курсив");
+
+        JButton underlined = new JButton("Подчеркнутый");
+
+        JButton readMore = new JButton("Разделитель");
+
+        JButton addImage = new JButton("Добавить изображенеи");
+
+        innerStilePanel.add(bold);
+        innerStilePanel.add(italik);
+        innerStilePanel.add(underlined);
+        innerStilePanel.add(readMore);
+        innerStilePanel.add(addImage);
+        innerStilePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        stilMenu.add(innerStilePanel);
+        bold.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                HTMLEditorKit ekit = (HTMLEditorKit) area2.getEditorKit();
+
+                int selectStart = area2.getSelectionStart();
+                int selectEnd = area2.getSelectionEnd();
+                Element startElem = doc.getParagraphElement(selectStart);
+                Element endElem = doc.getParagraphElement(selectEnd);
+
+                String txt = area2.getSelectedText();
+                if (selectStart != selectEnd) {
+                    try {
+                        doc.remove(selectStart, selectEnd-selectStart);
+                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<b>"+txt+"</b>", 0, 0, HTML.Tag.B);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        //italilk button
+        italik.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                HTMLEditorKit ekit = (HTMLEditorKit) area2.getEditorKit();
+
+                int selectStart = area2.getSelectionStart();
+                int selectEnd = area2.getSelectionEnd();
+                Element startElem = doc.getParagraphElement(selectStart);
+                Element endElem = doc.getParagraphElement(selectEnd);
+
+                String txt = area2.getSelectedText();
+                if (selectStart != selectEnd) {
+                    try {
+                        doc.remove(selectStart, selectEnd-selectStart);
+                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<i>"+txt+"</i>", 0, 0, HTML.Tag.I);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+        //underline button
+        underlined.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                HTMLEditorKit ekit = (HTMLEditorKit) area2.getEditorKit();
+
+                int selectStart = area2.getSelectionStart();
+                int selectEnd = area2.getSelectionEnd();
+                Element startElem = doc.getParagraphElement(selectStart);
+                Element endElem = doc.getParagraphElement(selectEnd);
+
+                String txt = area2.getSelectedText();
+                if (selectStart != selectEnd) {
+                    try {
+                        doc.remove(selectStart, selectEnd-selectStart);
+                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<u>"+txt+"</u>", 0, 0, HTML.Tag.U);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+        //button insert more
+        readMore.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                HTMLEditorKit ekit = (HTMLEditorKit) area2.getEditorKit();
+
+                int selectStart = area2.getSelectionStart();
+                int selectEnd = area2.getSelectionEnd();
+                Element startElem = doc.getParagraphElement(selectStart);
+                Element endElem = doc.getParagraphElement(selectEnd);
+
+                String txt = area2.getSelectedText();
+                    try {
+                        doc.remove(selectStart, selectEnd-selectStart);
+                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<hr id=\"system-readmore\" /> ", 0, 0, null);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+            }
+        });
+        addImage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                HTMLEditorKit ekit = (HTMLEditorKit) area2.getEditorKit();
+
+                int selectStart = area2.getSelectionStart();
+                int selectEnd = area2.getSelectionEnd();
+                String getUrlImage = (String) JOptionPane.showInputDialog(null,"Вставьте ссылку на изображение ...","Введите URL",JOptionPane.INFORMATION_MESSAGE,null,null, "http://");
+                String txt = area2.getSelectedText();
+                    try {
+                        doc.remove(selectStart, selectEnd-selectStart);
+                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<img src=\""+getUrlImage+"\" alt=\"#\">", 0, 0, HTML.Tag.IMG);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+            }
+        });
+//Конец полей со стилями
         //test teper eto bar
         JPanel categoriLine = new JPanel(new GridLayout(1,3));
         JComboBox<String> jb = craterCategoryMenu();
@@ -103,15 +244,43 @@ public class TextArea extends JFrame {
 
         //категории
         textArea.add(northPanel);
+        textArea.add(stilMenu);
         contents.setLayout(new BorderLayout());
 
         contents.add(textArea,BorderLayout.PAGE_START);
+
         contents.add(new JScrollPane(area2),BorderLayout.CENTER);
 
         //низ добавляем
         downAra.add(categoriLine);
         downAra.add(downLabel);
         downAra.add(downButton);
+
+
+              JButton t111 =  new JButton("pppp111");
+              t111.addActionListener(new ActionListener() {
+                  @Override
+                  public void actionPerformed(ActionEvent e) {
+                      HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                      HTMLEditorKit ekit = (HTMLEditorKit) area2.getEditorKit();
+
+                      int selectStart = area2.getSelectionStart();
+                      int selectEnd = area2.getSelectionEnd();
+                      Element startElem = doc.getParagraphElement(selectStart);
+                      Element endElem = doc.getParagraphElement(selectEnd);
+
+                      String txt = area2.getSelectedText();
+                      if (selectStart != selectEnd) {
+                          try {
+                              doc.remove(selectStart, selectEnd-selectStart);
+                              ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<b>"+txt+"</b>", 0, 0, HTML.Tag.B);
+                          } catch (Exception e1) {
+                              e1.printStackTrace();
+                          }
+                      }
+                  }
+              });
+
         //слушатель категорий
         jb.addActionListener(new ActionListener() {
             @Override
@@ -179,13 +348,15 @@ public class TextArea extends JFrame {
         });
 //слуштель кнопки тест
 
+setupMenuKey(this);
+
 
         // Выводим окно на экран
-        setSize(500, 400);
+        setSize(600, 500);
         setVisible(true);
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-            ArrayList<Integer> typedKeys = new ArrayList<>();
+            final ArrayList<Integer> typedKeys = new ArrayList<>();
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (e.getID() == KeyEvent.KEY_PRESSED) {
@@ -226,7 +397,28 @@ public class TextArea extends JFrame {
     }
     private JComboBox<String> craterCategoryMenu(){
 
-        JComboBox<String> jComboBox = new JComboBox<String>(Model.mass);
-        return jComboBox;
+        return new JComboBox<String>(Model.mass);
+    }
+
+    //Актион для использования алт дабы попасть в меню
+    private void setupMenuKey( JFrame frame) {
+        Action menuAction = new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JRootPane rootPane = frame.getRootPane();
+                JMenuBar jMenuBar = rootPane.getJMenuBar();
+                JMenu menu = jMenuBar.getMenu(0);
+                menu.doClick();
+            }
+        };
+
+        JRootPane rootPane = frame.getRootPane();
+        ActionMap actionMap = rootPane.getActionMap();
+
+        final String MENU_ACTION_KEY = "expand_that_first_menu_please";
+        actionMap.put(MENU_ACTION_KEY, menuAction);
+        InputMap inputMap = rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ALT, 0, true), MENU_ACTION_KEY);
     }
 }

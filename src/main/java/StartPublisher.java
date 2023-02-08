@@ -1,6 +1,10 @@
 import gui.JoomReg;
 import gui.TextArea;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+
 public class StartPublisher {
 
     public static void main(String[] args) {
@@ -10,4 +14,5 @@ public class StartPublisher {
 
 
     }
+
 }
