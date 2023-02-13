@@ -1,5 +1,10 @@
 package gui.json;
 
+import javax.swing.*;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+
 public class JoomlaPost {
     private String alias;
 
@@ -148,5 +153,24 @@ public class JoomlaPost {
             }
         }
         return String.valueOf(charMass);
+    }
+    public static boolean checkParentElementType(HTML.Tag tag , JEditorPane pane){
+        int p = pane.getCaretPosition();
+        HTMLDocument doc = (HTMLDocument) pane.getDocument();
+        Element e = doc.getParagraphElement(p);
+        String tagString = tag.toString();
+        if(e.getName().equalsIgnoreCase(tagString))
+        {
+            return true;
+        }
+        do
+        {
+            if((e = e.getParentElement()).getName().equalsIgnoreCase(tagString))
+            {
+                return true;
+
+            }
+        } while(!(e.getName().equalsIgnoreCase("html")));
+        return false;
     }
 }

@@ -5,6 +5,7 @@ import gui.model.JConnPos;
 import gui.model.Model;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
@@ -13,6 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -49,6 +51,53 @@ public class TextArea extends JFrame {
 
         JEditorPane area2 = new JEditorPane();
 
+
+        area2.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                HTMLDocument doc = (HTMLDocument) area2.getDocument();
+                if (e.getKeyChar() == KeyEvent.VK_ENTER){
+                    //System.out.println( "We pressed enter" );
+                    if( JoomlaPost.checkParentElementType( HTML.Tag.BODY,area2 ) ){
+                        int caretPos = area2.getCaretPosition();
+                        Element ep = doc.getParagraphElement( caretPos ).getParentElement();//Element ep = doc.getParagraphElement( caretPos ).getParentElement();
+                        try {
+                            e.consume();
+                            doc.insertBeforeEnd(ep, "<br>");
+                            area2.setCaretPosition(caretPos +2);//+1
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+
+                Element elem =  doc.getParagraphElement(area2.getCaretPosition());
+                int so = elem.getStartOffset();
+                int eo = elem.getEndOffset();
+
+                try{
+                    //System.out.println(  area2.getText(so,eo-so).toString().length() );
+
+                }catch( Exception ex){
+
+                }
+
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+
+
         area2.setContentType("text/html;Charset=windows-1251");
         area2.getDocument().putProperty("IgnoreCharsetDirective", Boolean.TRUE);
         area2.setText("Тут <b> текст для </b>публикации !");
@@ -82,6 +131,7 @@ public class TextArea extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String text = area2.getText();
+                System.out.println(text);
                 area2.setContentType("text/html;Charset=UTF-8");
                 area2.setText(text);
             }
@@ -93,6 +143,7 @@ public class TextArea extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String text = area2.getText();
+
                 System.out.println(text);
                 area2.setContentType("text/plain;Charset=UTF-8");
                 area2.setText(text);
@@ -101,6 +152,7 @@ public class TextArea extends JFrame {
         menuHtml.add(itemHtml);
         htmlgroup.add(itemHtml);
         //----
+
 //LДобавляем поля со стилями
         JPanel stilMenu = new JPanel();
         stilMenu.setLayout(new BoxLayout(stilMenu, BoxLayout.X_AXIS));
@@ -131,8 +183,7 @@ public class TextArea extends JFrame {
 
                 int selectStart = area2.getSelectionStart();
                 int selectEnd = area2.getSelectionEnd();
-                Element startElem = doc.getParagraphElement(selectStart);
-                Element endElem = doc.getParagraphElement(selectEnd);
+
 
                 String txt = area2.getSelectedText();
                 if (selectStart != selectEnd) {
@@ -155,8 +206,6 @@ public class TextArea extends JFrame {
 
                 int selectStart = area2.getSelectionStart();
                 int selectEnd = area2.getSelectionEnd();
-                Element startElem = doc.getParagraphElement(selectStart);
-                Element endElem = doc.getParagraphElement(selectEnd);
 
                 String txt = area2.getSelectedText();
                 if (selectStart != selectEnd) {
@@ -178,8 +227,6 @@ public class TextArea extends JFrame {
 
                 int selectStart = area2.getSelectionStart();
                 int selectEnd = area2.getSelectionEnd();
-                Element startElem = doc.getParagraphElement(selectStart);
-                Element endElem = doc.getParagraphElement(selectEnd);
 
                 String txt = area2.getSelectedText();
                 if (selectStart != selectEnd) {
@@ -201,8 +248,7 @@ public class TextArea extends JFrame {
 
                 int selectStart = area2.getSelectionStart();
                 int selectEnd = area2.getSelectionEnd();
-                Element startElem = doc.getParagraphElement(selectStart);
-                Element endElem = doc.getParagraphElement(selectEnd);
+
 
                 String txt = area2.getSelectedText();
                     try {
@@ -221,14 +267,52 @@ public class TextArea extends JFrame {
 
                 int selectStart = area2.getSelectionStart();
                 int selectEnd = area2.getSelectionEnd();
-                String getUrlImage = (String) JOptionPane.showInputDialog(null,"Вставьте ссылку на изображение ...","Введите URL",JOptionPane.INFORMATION_MESSAGE,null,null, "http://");
-                String txt = area2.getSelectedText();
+                //Множественный выбор
+                String getUrlImage = "";
+                String size = "";
+                JOptionPane d = new JOptionPane();
+                String selectPane[]={ "Загрузить с компьютера", "Указать (ссылку) URL", "Отмена"};
+                int retour = d.showOptionDialog(TextArea.this, "Выберите тип загрузки", "Добавить изображение...", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, selectPane, selectPane[1]);
+                if(retour==0){
+                    //тут мы загружаем с компа фтп и приблуды
+                    JOptionPane.showMessageDialog(TextArea.this,"Кода пока нет");
+                }
+                if(retour == 1) {
+
+                    getUrlImage = (String) JOptionPane.showInputDialog(TextArea.this, "Вставьте ссылку на изображение ...", "Введите URL", JOptionPane.INFORMATION_MESSAGE, null, null, "http://");
+                    JLabel textPic = new JLabel("Введите желаемы размер или нажмите отмена.");
+                    JLabel width = new JLabel("Ширнина  =  ");
+                    JLabel height = new JLabel("Высота  =  ");
+                    JTextField widthGet = new JTextField();
+                    JTextField heightGet = new JTextField();
+                    JPanel sizeImgOwer = new JPanel(new GridLayout(2,1));
+                    JPanel textPanelImg = new JPanel(new GridLayout(1,1));
+                    JPanel strokImg = new JPanel(new GridLayout(2,2));
+                    textPanelImg.add(textPic);
+                    strokImg.add(height);
+                    strokImg.add(heightGet);
+                    strokImg.add(width);
+                    strokImg.add(widthGet);
+
+                    sizeImgOwer.add(strokImg);
+                    sizeImgOwer.add(textPanelImg);
+
+                    int otvet = JOptionPane.showConfirmDialog(TextArea.this,sizeImgOwer,"Изменить размеры изображения ?",JOptionPane.OK_CANCEL_OPTION);
+                    if(otvet == 0){
+                        size =  "style=\"width:" + widthGet.getText() + "px;height:" + heightGet.getText() + "px;\"";
+                    }
+
+
+                }
+                if(retour != 2) {
+                    String txt = area2.getSelectedText();
                     try {
-                        doc.remove(selectStart, selectEnd-selectStart);
-                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<img src=\""+getUrlImage+"\" alt=\"#\">", 0, 0, HTML.Tag.IMG);
+                        doc.remove(selectStart, selectEnd - selectStart);
+                        ekit.insertHTML((HTMLDocument) area2.getDocument(), selectStart, "<img src=\"" + getUrlImage + "\" alt=\"#\"" + size +">", 0, 0, HTML.Tag.IMG);
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
+                }
             }
         });
 //Конец полей со стилями
@@ -255,6 +339,8 @@ public class TextArea extends JFrame {
         downAra.add(categoriLine);
         downAra.add(downLabel);
         downAra.add(downButton);
+        //проверка интера для БР
+
 
 
               JButton t111 =  new JButton("pppp111");
@@ -349,6 +435,8 @@ public class TextArea extends JFrame {
 //слуштель кнопки тест
 
 setupMenuKey(this);
+/// cлушатель кнопки тест
+
 
 
         // Выводим окно на экран
@@ -421,4 +509,8 @@ setupMenuKey(this);
         InputMap inputMap = rootPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ALT, 0, true), MENU_ACTION_KEY);
     }
+
+    ///test
+
+
 }
